@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X Clone - Following/Followers</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body { overflow-y: scroll; }
+        .hover-bg:hover { background-color: rgba(0,0,0,0.05); cursor: pointer; transition: 0.2s; }
+        .nav-link { color: #0f1419; font-size: 1.25rem; border-radius: 50px; padding: 12px 20px; transition: 0.2s; }
+        .nav-link:hover { background-color: rgba(0,0,0,0.05); }
+        .nav-link i { font-size: 1.6rem; margin-right: 15px; }
+        .sticky-header { position: sticky; top: 0; z-index: 10; background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid #eff3f4; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid" style="max-width: 1280px;">
+        <div class="row">
+            
+            <!-- Sidebar Left -->
+            <div class="col-2 col-md-3 col-xl-2 d-flex flex-column sticky-top vh-100 py-2 ps-md-4 pe-2">
+                <a href="home.html" class="d-inline-block p-2 mb-3 mt-1 text-dark">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 30px; fill: #0f1419;"><g><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></g></svg>
+                </a>
+                <nav class="nav flex-column gap-1 mb-auto">
+                    <a href="home.html" class="nav-link d-flex align-items-center"><i class="bi bi-house-door"></i> <span class="d-none d-md-inline">Home</span></a>
+                    <a href="explore.html" class="nav-link d-flex align-items-center"><i class="bi bi-search"></i> <span class="d-none d-md-inline">Explore</span></a>
+                    <a href="profile.html" class="nav-link fw-bold d-flex align-items-center"><i class="bi bi-person-fill"></i> <span class="d-none d-md-inline">Profile</span></a>
+                </nav>
+            </div>
+
+            <!-- Main Content: Network -->
+            <main class="col-10 col-md-9 col-xl-6 border-start border-end p-0 min-vh-100">
+                
+                <!-- Header -->
+                <div class="sticky-header p-2 d-flex align-items-center">
+                    <a href="profile.html" class="btn btn-light border-0 rounded-circle me-4 p-2 fs-5 hover-bg"><i class="bi bi-arrow-left"></i></a>
+                    <div>
+                        <h4 class="fw-bold mb-0 lh-1">John Doe</h4>
+                        <small class="text-secondary">@johndoe</small>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <ul class="nav nav-underline flex-nowrap w-100 text-center border-bottom sticky-top" style="top: 60px; background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); z-index: 9;">
+                    <li class="nav-item flex-grow-1"><a class="nav-link text-secondary pb-3 px-0 rounded-0 fs-6" href="#">Verified</a></li>
+                    <li class="nav-item flex-grow-1"><a class="nav-link active fw-bold text-dark pb-3 px-0 rounded-0 fs-6" href="#">Followers</a></li>
+                    <li class="nav-item flex-grow-1"><a class="nav-link text-secondary pb-3 px-0 rounded-0 fs-6" href="#">Following</a></li>
+                </ul>
+
+                <!-- Follower List Item 1 -->
+                <div class="p-3 border-bottom hover-bg d-flex align-items-start justify-content-between">
+                    <div class="d-flex align-items-start">
+                        <img src="https://ui-avatars.com/api/?name=Dev+Community&background=random" class="rounded-circle me-3" width="48" height="48">
+                        <div class="lh-sm">
+                            <div class="fw-bold">Dev Community</div>
+                            <div class="text-secondary small">@ThePracticalDev</div>
+                            <div class="mt-2 text-dark">Empowering developers worldwide.</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-dark rounded-pill fw-bold px-3 py-1 mt-1">Follow</button>
+                </div>
+
+                <!-- Following List Item 2 -->
+                <div class="p-3 border-bottom hover-bg d-flex align-items-start justify-content-between">
+                    <div class="d-flex align-items-start">
+                        <img src="https://ui-avatars.com/api/?name=Jane+Smith&background=random" class="rounded-circle me-3" width="48" height="48">
+                        <div class="lh-sm">
+                            <div class="fw-bold">Jane Smith</div>
+                            <div class="text-secondary small">@janesmith</div>
+                            <div class="mt-2 text-dark">Frontend Developer</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline-dark rounded-pill fw-bold px-3 py-1 mt-1">Following</button>
+                </div>
+
+            </main>
+            <!-- Right Sidebar Blank Placeholder -->
+            <aside class="col-xl-4 d-none d-xl-block py-3 ps-4 pe-lg-5"></aside>
+        </div>
+    </div>
+</body>
+</html>
