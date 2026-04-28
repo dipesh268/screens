@@ -1,0 +1,463 @@
+<!-- Sidebar Left (EJS Partial) -->
+<div class="col-2 col-md-3 col-xl-2 d-flex flex-column sticky-top vh-100 py-2 ps-md-4 pe-2">
+    <a href="/home" class="d-inline-block p-2 mb-3 mt-1 text-dark">
+        <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 30px; fill: #0f1419;"><g><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></g></svg>
+    </a>
+    <nav class="nav flex-column gap-1 mb-auto">
+        <a href="/home" class="nav-link <%= activePage === 'home' ? 'fw-bold' : '' %> d-flex align-items-center">
+            <i class="bi bi-house-door<%= activePage === 'home' ? '-fill' : '' %>"></i> <span class="d-none d-md-inline">Home</span>
+        </a>
+        <a href="/explore" class="nav-link <%= activePage === 'explore' ? 'fw-bold' : '' %> d-flex align-items-center">
+            <i class="bi bi-search"></i> <span class="d-none d-md-inline">Explore</span>
+        </a>
+        <a href="/profile" class="nav-link <%= activePage === 'profile' ? 'fw-bold' : '' %> d-flex align-items-center">
+            <i class="bi bi-person<%= activePage === 'profile' ? '-fill' : '' %>"></i> <span class="d-none d-md-inline">Profile</span>
+        </a>
+        <a href="/otp" class="nav-link text-danger d-flex align-items-center">
+            <i class="bi bi-shield-lock"></i> <span class="d-none d-md-inline">OTP Simulation</span>
+        </a>
+        <a href="/logout" class="nav-link text-dark d-flex align-items-center">
+            <i class="bi bi-box-arrow-left"></i> <span class="d-none d-md-inline">Logout</span>
+        </a>
+    </nav>
+    <button class="btn btn-primary rounded-pill fw-bold py-3 mt-3 w-100 d-none d-md-block shadow-sm">Post</button>
+    <button class="btn btn-primary rounded-circle mt-3 d-md-none p-3 shadow-sm mx-auto"><i class="bi bi-feather"></i></button>
+    
+    <!-- Dynamic User Profile Widget -->
+    <div class="mt-4 p-2 hover-bg rounded-pill d-flex align-items-center mb-3">
+        <img src="<%= typeof currentUser !== 'undefined' ? '/uploads/' + currentUser.profilePic : 'https://ui-avatars.com/api/?name=User&background=random' %>" onerror="this.src='https://ui-avatars.com/api/?name=User&background=random'" class="rounded-circle me-md-2" width="40" height="40">
+        <div class="d-none d-md-block lh-sm overflow-hidden">
+            <div class="fw-bold text-truncate"><%= typeof currentUser !== 'undefined' ? currentUser.fullName : 'John Doe' %></div>
+            <div class="text-secondary small text-truncate">@<%= typeof currentUser !== 'undefined' ? currentUser.username : 'johndoe' %></div>
+        </div>
+        <i class="bi bi-three-dots ms-auto d-none d-md-block px-2"></i>
+    </div>
+</div>
+
+
+
+####
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X Clone - Edit Profile</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body { overflow-y: scroll; }
+        .hover-bg:hover { background-color: rgba(0,0,0,0.05); cursor: pointer; transition: 0.2s; }
+        .nav-link { color: #0f1419; font-size: 1.25rem; border-radius: 50px; padding: 12px 20px; transition: 0.2s; }
+        .nav-link:hover { background-color: rgba(0,0,0,0.05); }
+        .nav-link i { font-size: 1.6rem; margin-right: 15px; }
+        .sticky-header { position: sticky; top: 0; z-index: 10; background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); }
+        
+        /* Edit Profile Specific Styles */
+        .camera-overlay { 
+            position: absolute; 
+            top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); 
+            background: rgba(0,0,0,0.5); 
+            color: white; 
+            padding: 12px; 
+            border-radius: 50%; 
+            cursor: pointer; 
+            transition: 0.2s; 
+        }
+        .camera-overlay:hover { background: rgba(0,0,0,0.7); }
+        .form-floating > .form-control:focus { border-color: #0f1419; box-shadow: none; border-width: 2px; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid" style="max-width: 1280px;">
+        <div class="row">
+            
+            <!-- Sidebar Left Partial Include -->
+            <%- include('partials/sidebar', { activePage: 'profile' }) %>
+
+            <!-- Main Content: Edit Profile -->
+            <main class="col-10 col-md-9 col-xl-6 border-start border-end p-0 min-vh-100">
+                <form action="/profile/edit" method="POST" enctype="multipart/form-data">
+                    
+                    <!-- Sticky Header -->
+                    <div class="sticky-header p-2 d-flex align-items-center justify-content-between border-bottom">
+                        <div class="d-flex align-items-center">
+                            <a href="/profile" class="btn btn-light border-0 rounded-circle me-3 p-2 fs-5 hover-bg text-dark"><i class="bi bi-x-lg"></i></a>
+                            <h4 class="fw-bold mb-0 lh-1">Edit profile</h4>
+                        </div>
+                        <button type="submit" class="btn btn-dark rounded-pill fw-bold px-4">Save</button>
+                    </div>
+
+                    <!-- Cover Image Upload -->
+                    <div class="bg-secondary bg-opacity-25 position-relative" style="height: 200px; cursor: pointer;">
+                        <!-- Overlay for Image Upload -->
+                        <div class="d-flex position-absolute w-100 h-100 justify-content-center align-items-center bg-dark bg-opacity-25">
+                            <label for="coverUpload" class="camera-overlay m-0 position-relative top-0 start-0 transform-none mx-2">
+                                <i class="bi bi-camera fs-5"></i>
+                            </label>
+                            <div class="camera-overlay m-0 position-relative top-0 start-0 transform-none mx-2">
+                                <i class="bi bi-x-lg fs-5"></i>
+                            </div>
+                        </div>
+                        <input type="file" id="coverUpload" name="coverImage" class="d-none" accept="image/*">
+                    </div>
+                    
+                    <!-- Avatar Upload -->
+                    <div class="px-3 position-relative" style="margin-bottom: 60px;">
+                        <div class="position-absolute" style="top: -70px; left: 16px;">
+                            <img src="<%= typeof currentUser !== 'undefined' ? '/uploads/' + currentUser.profilePic : 'https://ui-avatars.com/api/?name=User&background=random' %>" class="rounded-circle border border-4 border-white bg-white" style="width: 140px; height: 140px; object-fit: cover;">
+                            <label for="avatarUpload" class="camera-overlay m-0">
+                                <i class="bi bi-camera fs-5"></i>
+                            </label>
+                            <input type="file" id="avatarUpload" name="profilePic" class="d-none" accept="image/*">
+                        </div>
+                    </div>
+
+                    <!-- Form Inputs -->
+                    <div class="px-3 pb-4">
+                        <div class="form-floating mb-4">
+                            <input type="text" class="form-control rounded-1 border" id="editName" name="fullName" placeholder="Name" value="<%= typeof currentUser !== 'undefined' ? currentUser.fullName : 'John Doe' %>" required>
+                            <label for="editName" class="text-secondary">Name</label>
+                        </div>
+                        
+                        <div class="form-floating mb-4">
+                            <textarea class="form-control rounded-1 border pt-4" id="editBio" name="bio" placeholder="Bio" style="height: 120px"><%= typeof currentUser !== 'undefined' ? currentUser.bio : 'Full-stack developer building cool things on the internet. 💻 ☕' %></textarea>
+                            <label for="editBio" class="text-secondary">Bio</label>
+                        </div>
+
+                        <!-- Location -->
+                        <div class="form-floating mb-4">
+                            <input type="text" class="form-control rounded-1 border" id="editLocation" name="location" placeholder="Location" value="<%= typeof currentUser !== 'undefined' ? currentUser.location : 'New York, USA' %>">
+                            <label for="editLocation" class="text-secondary">Location</label>
+                        </div>
+
+                        <!-- SRS Mandatory Field: Time Zone -->
+                        <div class="form-floating mb-4 border rounded-1">
+                            <select class="form-select border-0" id="editTimezone" name="timezone" required>
+                                <option value="" disabled>Select your time zone</option>
+                                <option value="UTC" <%= typeof currentUser !== 'undefined' && currentUser.timezone === 'UTC' ? 'selected' : '' %>>UTC</option>
+                                <option value="IST" <%= typeof currentUser !== 'undefined' && currentUser.timezone === 'IST' ? 'selected' : '' %>>India Standard Time (IST)</option>
+                                <option value="EST" <%= typeof currentUser === 'undefined' || currentUser.timezone === 'EST' ? 'selected' : '' %>>Eastern Time (EST)</option>
+                                <option value="PST" <%= typeof currentUser !== 'undefined' && currentUser.timezone === 'PST' ? 'selected' : '' %>>Pacific Time (PST)</option>
+                            </select>
+                            <label for="editTimezone" class="text-secondary">Time Zone (Mandatory)</label>
+                        </div>
+                    </div>
+                </form>
+            </main>
+
+            <!-- Blank Right Sidebar Space -->
+            <aside class="col-xl-4 d-none d-xl-block py-3 ps-4 pe-lg-5"></aside>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+
+
+###
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X Clone - Home</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body { overflow-y: scroll; }
+        .hover-bg:hover { background-color: rgba(0,0,0,0.05); cursor: pointer; transition: 0.2s; }
+        .nav-link { color: #0f1419; font-size: 1.25rem; border-radius: 50px; padding: 12px 20px; transition: 0.2s; }
+        .nav-link:hover { background-color: rgba(0,0,0,0.05); }
+        .nav-link i { font-size: 1.6rem; margin-right: 15px; }
+        .tweet-border { border-bottom: 1px solid #eff3f4; }
+        .sticky-header { position: sticky; top: 0; z-index: 10; background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid #eff3f4; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid" style="max-width: 1280px;">
+        <div class="row">
+            
+            <!-- Sidebar Left Partial Include -->
+            <%- include('partials/sidebar', { activePage: 'home' }) %>
+
+            <!-- Main Feed -->
+            <main class="col-10 col-md-9 col-xl-6 border-start border-end p-0 min-vh-100">
+                <div class="sticky-header pt-3">
+                    <ul class="nav nav-underline flex-nowrap w-100 text-center">
+                        <li class="nav-item flex-grow-1"><a class="nav-link active fw-bold text-dark pb-3 px-0 rounded-0" href="#">For you</a></li>
+                        <li class="nav-item flex-grow-1"><a class="nav-link text-secondary pb-3 px-0 rounded-0" href="#">Following</a></li>
+                    </ul>
+                </div>
+
+                <!-- Composer -->
+                <div class="p-3 tweet-border d-flex">
+                    <img src="<%= typeof currentUser !== 'undefined' ? '/uploads/' + currentUser.profilePic : 'https://ui-avatars.com/api/?name=User&background=random' %>" class="rounded-circle me-3" width="40" height="40">
+                    <form action="/tweet" method="POST" class="w-100" enctype="multipart/form-data">
+                        <textarea class="form-control border-0 fs-5 px-0 shadow-none bg-transparent pt-2" name="content" rows="2" placeholder="What is happening?!"></textarea>
+                        <div class="border-bottom my-2"></div>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <div class="text-primary fs-5 d-flex gap-1">
+                                <label for="tweetImage" class="mb-0"><i class="bi bi-image hover-bg rounded-circle p-2"></i></label>
+                                <input type="file" id="tweetImage" name="tweetImage" class="d-none" accept="image/*">
+                                <i class="bi bi-emoji-smile hover-bg rounded-circle p-2"></i>
+                            </div>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">Post</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Example Tweets Feed (In real app, wrap this in a loop: <% tweets.forEach(tweet => { %>) -->
+                <div class="p-3 tweet-border hover-bg d-flex">
+                    <img src="https://ui-avatars.com/api/?name=Elon+Musk&background=0D8ABC&color=fff" class="rounded-circle me-3" width="40" height="40">
+                    <div class="w-100">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="fw-bold">Elon Musk</span>
+                                <i class="bi bi-patch-check-fill text-primary"></i>
+                                <span class="text-secondary small">@elonmusk · 2h</span>
+                            </div>
+                            <i class="bi bi-three-dots text-secondary p-2 hover-bg rounded-circle"></i>
+                        </div>
+                        <p class="mb-2">EJS Partials make life so much easier! By extracting the sidebar, you only have to write it once and include it everywhere. 🚀</p>
+                        <div class="d-flex justify-content-between text-secondary mt-2 pe-md-5 small">
+                            <div class="hover-bg p-2 rounded-pill text-primary"><i class="bi bi-chat me-2"></i>1.2K</div>
+                            <div class="hover-bg p-2 rounded-pill text-success"><i class="bi bi-arrow-repeat me-2"></i>5K</div>
+                            <div class="hover-bg p-2 rounded-pill text-danger"><i class="bi bi-heart me-2"></i>45K</div>
+                            <div class="hover-bg p-2 rounded-pill text-primary"><i class="bi bi-bar-chart me-2"></i>1M</div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Right Sidebar Widgets -->
+            <aside class="col-xl-4 d-none d-xl-block py-3 ps-4 pe-lg-5">
+                <div class="position-sticky top-0 pt-1">
+                    <!-- Search Bar -->
+                    <div class="input-group mb-4 bg-light rounded-pill overflow-hidden border px-2 py-1">
+                        <span class="input-group-text border-0 bg-transparent text-secondary"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control border-0 bg-transparent shadow-none" placeholder="Search">
+                    </div>
+
+                    <!-- Who to Follow Widget -->
+                    <div class="bg-light rounded-4 p-3 border">
+                        <h5 class="fw-bold mb-3">Who to follow</h5>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="d-flex align-items-center hover-bg p-1 rounded">
+                                <img src="https://ui-avatars.com/api/?name=Jane+Smith&background=random" class="rounded-circle me-2" width="40" height="40">
+                                <div class="lh-sm">
+                                    <div class="fw-bold small">Jane Smith</div>
+                                    <div class="text-secondary small">@janesmith</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-dark btn-sm rounded-pill fw-bold px-3 py-1">Follow</button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+            
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+
+####
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X Clone - Profile</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body { overflow-y: scroll; }
+        .hover-bg:hover { background-color: rgba(0,0,0,0.05); cursor: pointer; transition: 0.2s; }
+        .nav-link { color: #0f1419; font-size: 1.25rem; border-radius: 50px; padding: 12px 20px; transition: 0.2s; }
+        .nav-link:hover { background-color: rgba(0,0,0,0.05); }
+        .nav-link i { font-size: 1.6rem; margin-right: 15px; }
+        .sticky-header { position: sticky; top: 0; z-index: 10; background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid #eff3f4; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid" style="max-width: 1280px;">
+        <div class="row">
+            
+            <!-- Sidebar Left Partial Include -->
+            <%- include('partials/sidebar', { activePage: 'profile' }) %>
+
+            <!-- Main Content: Profile -->
+            <main class="col-10 col-md-9 col-xl-6 border-start border-end p-0 min-vh-100">
+                <!-- Profile Header -->
+                <div class="sticky-header p-2 d-flex align-items-center">
+                    <a href="/home" class="btn btn-light border-0 rounded-circle me-4 p-2 fs-5 hover-bg"><i class="bi bi-arrow-left"></i></a>
+                    <div>
+                        <h4 class="fw-bold mb-0 lh-1"><%= typeof currentUser !== 'undefined' ? currentUser.fullName : 'John Doe' %></h4>
+                        <small class="text-secondary">1,204 posts</small>
+                    </div>
+                </div>
+
+                <!-- Cover Image & Avatar -->
+                <div class="bg-secondary bg-opacity-25 position-relative" style="height: 200px;">
+                    <img src="<%= typeof currentUser !== 'undefined' ? '/uploads/' + currentUser.profilePic : 'https://ui-avatars.com/api/?name=User&background=random' %>" class="rounded-circle border border-4 border-white position-absolute bg-white" style="bottom: -70px; left: 16px; width: 140px; height: 140px; object-fit: cover;">
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-end p-3" style="height: 80px;">
+                    <a href="/profile/edit" class="btn btn-outline-dark rounded-pill fw-bold px-3">Edit profile</a>
+                </div>
+
+                <!-- Bio Information -->
+                <div class="px-3 pb-3 border-bottom">
+                    <h3 class="fw-bold mb-0"><%= typeof currentUser !== 'undefined' ? currentUser.fullName : 'John Doe' %></h3>
+                    <p class="text-secondary mb-3">@<%= typeof currentUser !== 'undefined' ? currentUser.username : 'johndoe' %></p>
+                    <p class="mb-3"><%= typeof currentUser !== 'undefined' ? currentUser.bio : 'Full-stack developer building cool things on the internet. 💻 ☕' %></p>
+                    
+                    <div class="d-flex flex-wrap gap-3 text-secondary small mb-3">
+                        <span><i class="bi bi-geo-alt me-1"></i><%= typeof currentUser !== 'undefined' ? currentUser.location : 'New York, USA' %></span>
+                        <span><i class="bi bi-clock me-1"></i><%= typeof currentUser !== 'undefined' ? currentUser.timezone : 'Eastern Time (ET)' %></span>
+                        <span><i class="bi bi-calendar3 me-1"></i>Joined March 2020</span>
+                    </div>
+                    
+                    <div class="d-flex gap-4 small">
+                        <a href="/network" class="text-decoration-none text-dark hover-bg"><span class="fw-bold">450</span> <span class="text-secondary">Following</span></a>
+                        <a href="/network" class="text-decoration-none text-dark hover-bg"><span class="fw-bold">1,024</span> <span class="text-secondary">Followers</span></a>
+                    </div>
+                </div>
+                
+                <!-- Tabs -->
+                <ul class="nav nav-underline flex-nowrap w-100 text-center border-bottom">
+                    <li class="nav-item flex-grow-1"><a class="nav-link active fw-bold text-dark pb-3 px-0 rounded-0 fs-6" href="#">Posts</a></li>
+                    <li class="nav-item flex-grow-1"><a class="nav-link text-secondary pb-3 px-0 rounded-0 fs-6" href="#">Replies</a></li>
+                    <li class="nav-item flex-grow-1"><a class="nav-link text-secondary pb-3 px-0 rounded-0 fs-6" href="#">Media</a></li>
+                    <li class="nav-item flex-grow-1"><a class="nav-link text-secondary pb-3 px-0 rounded-0 fs-6" href="#">Likes</a></li>
+                </ul>
+
+                <!-- Profile Tweet -->
+                <div class="p-3 border-bottom hover-bg d-flex">
+                    <img src="<%= typeof currentUser !== 'undefined' ? '/uploads/' + currentUser.profilePic : 'https://ui-avatars.com/api/?name=User&background=random' %>" class="rounded-circle me-3" width="40" height="40">
+                    <div class="w-100">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="fw-bold"><%= typeof currentUser !== 'undefined' ? currentUser.fullName : 'John Doe' %></span>
+                                <span class="text-secondary small">@<%= typeof currentUser !== 'undefined' ? currentUser.username : 'johndoe' %> · 1d</span>
+                            </div>
+                            <div class="dropdown">
+                                <i class="bi bi-three-dots text-secondary p-2 hover-bg rounded-circle" data-bs-toggle="dropdown"></i>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4">
+                                    <li><a class="dropdown-item fw-bold py-2" href="#"><i class="bi bi-pencil me-2 text-secondary"></i> Edit Post</a></li>
+                                    <li><a class="dropdown-item fw-bold text-danger py-2" href="#"><i class="bi bi-trash me-2"></i> Delete</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <p class="mb-2">Just deployed my latest project using Node.js, Express, and EJS partials! #Coding</p>
+                        <div class="d-flex justify-content-between text-secondary mt-2 pe-md-5 small">
+                            <div class="hover-bg p-2 rounded-pill text-primary"><i class="bi bi-chat me-2"></i>12</div>
+                            <div class="hover-bg p-2 rounded-pill text-success"><i class="bi bi-arrow-repeat me-2"></i>5</div>
+                            <div class="hover-bg p-2 rounded-pill text-danger"><i class="bi bi-heart me-2"></i>84</div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Blank Right Sidebar Space -->
+            <aside class="col-xl-4 d-none d-xl-block py-3 ps-4 pe-lg-5"></aside>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+
+
+#####
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X Clone - Explore</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body { overflow-y: scroll; }
+        .hover-bg:hover { background-color: rgba(0,0,0,0.05); cursor: pointer; transition: 0.2s; }
+        .nav-link { color: #0f1419; font-size: 1.25rem; border-radius: 50px; padding: 12px 20px; transition: 0.2s; }
+        .nav-link:hover { background-color: rgba(0,0,0,0.05); }
+        .nav-link i { font-size: 1.6rem; margin-right: 15px; }
+        .sticky-header { position: sticky; top: 0; z-index: 10; background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid #eff3f4; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid" style="max-width: 1280px;">
+        <div class="row">
+            
+            <!-- Sidebar Left Partial Include -->
+            <%- include('partials/sidebar', { activePage: 'explore' }) %>
+
+            <!-- Main Content: Explore -->
+            <main class="col-10 col-md-9 col-xl-6 border-start border-end p-0 min-vh-100">
+                
+                <!-- Search Header -->
+                <div class="sticky-header pt-2">
+                    <div class="px-3 pb-2">
+                        <form action="/search" method="GET" class="input-group bg-light rounded-pill overflow-hidden border px-3 py-2">
+                            <span class="input-group-text border-0 bg-transparent text-secondary"><i class="bi bi-search"></i></span>
+                            <input type="text" name="q" class="form-control border-0 bg-transparent shadow-none" placeholder="Search users or tweets">
+                        </form>
+                    </div>
+                    <!-- Tabs -->
+                    <ul class="nav nav-underline flex-nowrap w-100 text-center">
+                        <li class="nav-item flex-grow-1"><a class="nav-link active fw-bold text-dark pb-3 px-0 rounded-0 fs-6" href="#">For you</a></li>
+                        <li class="nav-item flex-grow-1"><a class="nav-link text-secondary pb-3 px-0 rounded-0 fs-6" href="#">Trending</a></li>
+                        <li class="nav-item flex-grow-1"><a class="nav-link text-secondary pb-3 px-0 rounded-0 fs-6" href="#">News</a></li>
+                        <li class="nav-item flex-grow-1"><a class="nav-link text-secondary pb-3 px-0 rounded-0 fs-6" href="#">Sports</a></li>
+                    </ul>
+                </div>
+
+                <!-- Trending Topics -->
+                <div class="p-3 fs-5 fw-bold border-bottom">Trends for you</div>
+
+                <!-- Trending Item 1 -->
+                <div class="p-3 border-bottom hover-bg d-flex justify-content-between">
+                    <div>
+                        <div class="text-secondary small">Technology · Trending</div>
+                        <div class="fw-bold mt-1">#WebDevelopment</div>
+                        <div class="text-secondary small mt-1">125K posts</div>
+                    </div>
+                    <i class="bi bi-three-dots text-secondary p-2 rounded-circle hover-bg h-100"></i>
+                </div>
+
+                <!-- Trending Item 2 -->
+                <div class="p-3 border-bottom hover-bg d-flex justify-content-between">
+                    <div>
+                        <div class="text-secondary small">Sports · Trending</div>
+                        <div class="fw-bold mt-1">Champions League</div>
+                        <div class="text-secondary small mt-1">85.4K posts</div>
+                    </div>
+                    <i class="bi bi-three-dots text-secondary p-2 rounded-circle hover-bg h-100"></i>
+                </div>
+            </main>
+            <!-- Right Sidebar Blank Placeholder -->
+            <aside class="col-xl-4 d-none d-xl-block py-3 ps-4 pe-lg-5"></aside>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+
+###
